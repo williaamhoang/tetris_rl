@@ -6,7 +6,7 @@ class Timer:
         self.func = func
         self.duration = duration
 
-        self.start_timer = 0
+        self.start_time = 0
         self.active = False
     
     def activate(self):

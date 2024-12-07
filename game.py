@@ -27,7 +27,8 @@ class Game:
 
         # Timer
         self.timers = {
-            'vertical move': Timer(UPDATE_START_SPEED, True, self.move_down)
+            'vertical move': Timer(UPDATE_START_SPEED, True, self.move_down),
+            'horizontal move': Timer(MOVE_WAIT_TIME)
         }
         self.timers['vertical move'].activate()
 
@@ -50,9 +51,21 @@ class Game:
 
         self.surface.blit(self.line_surface, (0,0))
 
+    def input(self):
+        keys = pygame.key.get_pressed()
+
+        if not self.timers['horizontal move'].active:
+            if keys[pygame.K_LEFT]:
+                self.tetromino.move_horizontal(-1)
+                self.timers['horizontal move'].activate()
+            if keys[pygame.K_RIGHT]:
+                self.tetromino.move_horizontal(1)
+                self.timers['horizontal move'].activate()
+
     def run(self):
 
         # Update
+        self.input()
         self.timer_update()
         self.sprites.update()
 
@@ -74,6 +87,17 @@ class Tetromino:
         # Create blocks with list comprehension
         self.blocks = [Block(group, pos, self.color) for pos in self.block_positions]
 
+    # Collision
+    def next_move_horizontal_collide(self, blocks, amount):
+        collision_list = [block.horizontal_collide(int(block.pos.x + amount)) for block in self.blocks]
+        return True if any(collision_list) else False
+
+    # Movement
+    def move_horizontal(self, amount):
+        if not self.next_move_horizontal_collide(self.blocks, amount):    
+            for block in self.blocks:
+                block.pos.x += amount
+
     def move_down(self):
         for block in self.blocks:
             block.pos.y += 1
@@ -89,6 +113,10 @@ class Block(pygame.sprite.Sprite):
         # Position
         self.pos = pygame.Vector2(pos) + BLOCK_OFFSET
         self.rect = self.image.get_rect(topleft = self.pos * CELL_SIZE)
+
+    def horizontal_collide(self, x):
+        if not 0 <= x < COLUMNS:
+            return True
 
     def update(self):
         self.rect.topleft = self.pos * CELL_SIZE
