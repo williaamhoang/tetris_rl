@@ -92,6 +92,10 @@ class Tetromino:
         collision_list = [block.horizontal_collide(int(block.pos.x + amount)) for block in self.blocks]
         return True if any(collision_list) else False
 
+    def next_move_vertical_collide(self, blocks, amount):
+        collision_list = [block.vertical_collide(int(block.pos.y + amount)) for block in self.blocks]
+        return True if any(collision_list) else False
+
     # Movement
     def move_horizontal(self, amount):
         if not self.next_move_horizontal_collide(self.blocks, amount):    
@@ -99,8 +103,9 @@ class Tetromino:
                 block.pos.x += amount
 
     def move_down(self):
-        for block in self.blocks:
-            block.pos.y += 1
+        if not self.next_move_vertical_collide(self.blocks, 1):
+            for block in self.blocks:
+                block.pos.y += 1
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, group, pos, color):
@@ -116,6 +121,10 @@ class Block(pygame.sprite.Sprite):
 
     def horizontal_collide(self, x):
         if not 0 <= x < COLUMNS:
+            return True
+
+    def vertical_collide(self, y):
+        if y >= ROWS:
             return True
 
     def update(self):
