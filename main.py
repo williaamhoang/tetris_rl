@@ -37,14 +37,16 @@ class Main:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+                else:
+                    self.game.handle_events(event)
 
             # Display
             self.display_surface.fill(GRAY)
 
             # Components
             self.game.run()
-            self.score.run()
             self.preview.run(self.next_shapes)
+            self.score.run(self.game.held_piece)
 
             # Updating the game
             pygame.display.update()
